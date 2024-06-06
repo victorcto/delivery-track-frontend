@@ -44,7 +44,7 @@ const FormMotorista = () => {
       (
       <>
         <Typography variant="h4" fontWeight="600" sx={{textAlign:"center", color:colors.greenAccent[500]}}>
-          Enviado
+          Motorista Cadastrado!
         </Typography>
 
         <Box display="flex" justifyContent="center" mt="20px">

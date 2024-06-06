@@ -1,15 +1,72 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography, useTheme } from "@mui/material";
 import { Field, Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { CheckBox } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import data from './data'
+import { tokens } from "../../theme";
 
 const FormEncomenda = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [isPending, setIsPending] = useState(false);
+  const [isSend, setIsSend] = useState(false);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   const handleFormSubmit = (values) => {
-    console.log(values);
+    setIsPending(true);
+    fetch('http://localhost:8080/api/v1/order',{
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        parcel: {
+            description: values.description,
+            width: values.width,
+            height: values.height,
+            length: values.length,
+            weight: values.weight
+        },
+        address: values.adress,
+        customerId: values.customerId,
+        driverId: values.driverId,
+        price: values.price
+      })
+    }
+    ).then(()=>{
+      setIsPending(false);
+      setIsSend(true);
+      console.log(JSON.stringify(values))
+    });
   };
+
+  const motoristas = [];
+  useEffect(() => {
+    fetch("http://localhost:8080/api/v1/customer")
+    .then(res=>{
+      return res.json();
+    }).then(data => {
+      console.log("CLIENTEE");
+      for (let index = 0; index < data.length; index++) {
+        motoristas.push(<MenuItem value={data[index].id}>{data[index].name}</MenuItem>);
+      }
+      console.log(data);
+    });
+  },[]);
+
+  const drivers = [];
+  useEffect(() => {
+    fetch("http://localhost:8080/api/v1/driver")
+    .then(res=>{
+      return res.json();
+    }).then(data => {
+      console.log("CLIENTEE");
+      for (let index = 0; index < data.length; index++) {
+        drivers.push(<MenuItem value={data[index].id}>{data[index].name}</MenuItem>);
+      }
+      console.log(data);
+    });
+  },[]);
 
   return (
     <Box m="20px">
@@ -21,6 +78,21 @@ const FormEncomenda = () => {
               >
               CADASTRAR NOVA ENCOMENDA
         </Typography>
+        {
+      isSend? 
+      (
+      <>
+        <Typography variant="h4" fontWeight="600" sx={{textAlign:"center", color:colors.greenAccent[500]}}>
+          Encomenda Cadastrada!
+        </Typography>
+
+        <Box display="flex" justifyContent="center" mt="20px">
+          <Button type="submit" color="primary" variant="contained" onClick={()=>{setIsSend(false)}} sx={{justifyContent:"center"}}>
+          Cadastrar Nova Encomenda
+          </Button>
+        </Box>
+      </>
+      ): (
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
@@ -84,7 +156,8 @@ const FormEncomenda = () => {
                 helperText={touched.price && errors.price}
                 sx={{ gridColumn: "span 4" }}
               />
-<TextField
+
+              <TextField
                 fullWidth
                 variant="filled"
                 type="text"
@@ -98,7 +171,7 @@ const FormEncomenda = () => {
                 sx={{ gridColumn: "span 2" }}
               />
 
-<TextField
+              <TextField
                 fullWidth
                 variant="filled"
                 type="text"
@@ -113,7 +186,7 @@ const FormEncomenda = () => {
               />
 
 
-<TextField
+              <TextField
                 fullWidth
                 variant="filled"
                 type="text"
@@ -139,8 +212,47 @@ const FormEncomenda = () => {
                 error={!!touched.weight && !!errors.weight}
                 helperText={touched.weight && errors.weight}
                 sx={{ gridColumn: "span 2" }}
-              />              
-           
+              />   
+
+              <FormControl  sx={{ gridColumn: "span 2"}}
+              error={!!touched.driverId && !!errors.driverId}
+              onBlur={handleBlur}
+              helperText={touched.driverId && errors.driverId} >
+                <InputLabel id="driverInput" sx={{marginTop:"10px"}}>Motorista</InputLabel>
+                <Select
+                  labelid="driver"
+                  id="driverSelect"
+                  value={values.driverId}
+                  name="driverId"
+                  variant="filled"
+                  onChange={handleChange}
+
+                  
+                >
+                  {drivers}
+                </Select>
+                {!!errors.driverId && !!touched.driverId && <Typography fontSize={10} sx={{ml:2,mt:0.5, color:"#D32F2F"}}>Obrigatório</Typography>}
+              </FormControl>  
+
+              <FormControl  
+                sx={{ gridColumn: "span 2"}}
+                error={!!touched.customerId && !!errors.customerId}
+                onBlur={handleBlur}
+                helperText={touched.customerId && errors.customerId} >
+                <InputLabel id="clientInput" sx={{marginTop:"10px"}}>Cliente</InputLabel>
+                <Select
+                  labelid="client"
+                  id="clientSelect"
+                  value={values.customerId}
+                  name="customerId"
+                  variant="filled"
+                  onChange={handleChange}
+                >
+                  {motoristas}
+                </Select>
+                {!!errors.customerId && !!touched.customerId && <Typography fontSize={10} sx={{ml:2,mt:0.5, color:"#D32F2F"}}>Obrigatório</Typography>}
+              </FormControl>  
+
             </Box>
             <Box display="flex" justifyContent="center" mt="20px">
               <Button type="submit" color="primary" variant="contained">
@@ -149,19 +261,23 @@ const FormEncomenda = () => {
             </Box>
           </form>
         )}
-      </Formik>
+      </Formik>)
+      }
     </Box>
   );
 };
 
 const checkoutSchema = yup.object().shape({
-  description: yup.string().required("required"),
-  adress: yup.string().required("required"),
-  weight: yup.string().required("required"),
-  height: yup.string().required("required"),
-  length: yup.string().required("required"),
-  width: yup.string().required("required"),
-  price: yup.string().required("required"),
+  description: yup.string().required("Obrigatório"),
+  adress: yup.string().required("Obrigatório"),
+  weight: yup.string().required("Obrigatório"),
+  height: yup.string().required("Obrigatório"),
+  length: yup.string().required("Obrigatório"),
+  width: yup.string().required("Obrigatório"),
+  price: yup.string().required("Obrigatório"),
+  driverId: yup.string().required("Obrigatório"),
+  customerId: yup.string().required("Obrigatório"),
+  
 });
 
 const initialValues = {
@@ -172,6 +288,8 @@ const initialValues = {
   length: "",
   width: "",
   price: "",
+  driverId: "",
+  customerId: "",
 };
 
 export default FormEncomenda;
