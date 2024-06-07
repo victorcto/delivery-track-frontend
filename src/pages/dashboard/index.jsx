@@ -12,7 +12,7 @@ const Dashboard = () => {
   const colors = tokens(theme.palette.mode);
   const [orderList, setOrderList] = useState([]);
   const [clientList, setClientList] = useState([]);
-  const [deliveredPercentage, setDeliveredPercentage] = useState({delivered: "loading", undelivered: "loading"});
+  const [deliveredPercentage, setDeliveredPercentage] = useState({delivered: "Carregando", undelivered: "Carregando"});
   const [orderIspending, setOrderIspending] = useState(true);
   const [customeIspending, setCustomerIspending] = useState(true);
 
@@ -24,6 +24,8 @@ const Dashboard = () => {
       setOrderIspending(false);
       setOrderList(data);
       // console.log(data[0].customer.name);
+    }).catch((error)=>{
+      console.log("server is down!")
     })
   },[]);
 
@@ -35,6 +37,8 @@ const Dashboard = () => {
       setCustomerIspending(false);
       setClientList(data);
       // console.log(data[0].customer.name);
+    }).catch((error)=>{
+      console.log("server is down!")
     });
   },[]);
   
@@ -45,6 +49,8 @@ const Dashboard = () => {
     }).then(data => {
       setDeliveredPercentage({delivered: data.deliveredPercentage, undelivered: data.latePercentage});
       // console.log(data[0].customer.name);
+    }).catch((error)=>{
+      console.log("server is down!")
     });
   },[]);
 

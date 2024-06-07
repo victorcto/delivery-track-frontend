@@ -10,7 +10,7 @@ import FormEncomenda from "./pages/forms/FormEncomenda"
 // import FormCliente from "./pages/formCliente"
 // import FormMotorista from "./pages/formMotorista"
 // import Cronograma from "./pages/cronograma"
-// import Historico from "./pages/historico"
+import Historico from "./pages/historico/index"
 // import Relatorios from "./pages/relatorios"
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
               <Route path="/formMotorista" element={<FormMotorista/>}/>
               <Route path="/formEncomenda" element={<FormEncomenda/>}/>
               {/* <Route path="/cronograma" element={<Cronograma/>}/> */}
-              {/* <Route path="/historico" element={<Historico/>}/> */}
+              <Route path="/historico" element={<Historico/>}/>
               {/* <Route path="/relatorios" element={<Relatorios/>}/> */}
             </Routes>
           </main>

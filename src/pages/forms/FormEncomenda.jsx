@@ -13,6 +13,8 @@ const FormEncomenda = () => {
   const [isSend, setIsSend] = useState(false);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [cl,setCl] = useState([]);
+  const [mt,setMt] = useState([]);
 
   const handleFormSubmit = (values) => {
     setIsPending(true);
@@ -40,31 +42,41 @@ const FormEncomenda = () => {
     });
   };
 
-  const motoristas = [];
   useEffect(() => {
+    const clients = [];
+
     fetch("http://localhost:8080/api/v1/customer")
     .then(res=>{
       return res.json();
     }).then(data => {
-      console.log("CLIENTEE");
+      console.log("CLIENTEE BEFORE");
+      console.log(clients);
       for (let index = 0; index < data.length; index++) {
-        motoristas.push(<MenuItem value={data[index].id}>{data[index].name}</MenuItem>);
+        clients.push(<MenuItem value={data[index].id}>{data[index].name}</MenuItem>);
       }
-      console.log(data);
+      console.log("CLIENTEE AFTER");
+      setCl(clients);
+      console.log(clients);
     });
   },[]);
 
-  const drivers = [];
+  console.log("drivers before for")
   useEffect(() => {
+    const drivers = [];
+
     fetch("http://localhost:8080/api/v1/driver")
     .then(res=>{
       return res.json();
     }).then(data => {
-      console.log("CLIENTEE");
+      console.log("MOTORISTA");
+      console.log("Lengthb: "+ data.length)
       for (let index = 0; index < data.length; index++) {
         drivers.push(<MenuItem value={data[index].id}>{data[index].name}</MenuItem>);
       }
-      console.log(data);
+      console.log("Lengtha: "+ data.length)
+      setMt(drivers);
+      console.log("drivers content");
+      console.log(drivers);
     });
   },[]);
 
@@ -77,14 +89,14 @@ const FormEncomenda = () => {
                 fontWeight="600"
               >
               CADASTRAR NOVA ENCOMENDA
-        </Typography>
+      </Typography>
         {
       isSend? 
       (
       <>
-        <Typography variant="h4" fontWeight="600" sx={{textAlign:"center", color:colors.greenAccent[500]}}>
-          Encomenda Cadastrada!
-        </Typography>
+      <Typography variant="h4" fontWeight="600" sx={{textAlign:"center", color:colors.greenAccent[500]}}>
+        Encomenda Cadastrada!
+      </Typography>
 
         <Box display="flex" justifyContent="center" mt="20px">
           <Button type="submit" color="primary" variant="contained" onClick={()=>{setIsSend(false)}} sx={{justifyContent:"center"}}>
@@ -229,7 +241,7 @@ const FormEncomenda = () => {
 
                   
                 >
-                  {drivers}
+                  {mt}
                 </Select>
                 {!!errors.driverId && !!touched.driverId && <Typography fontSize={10} sx={{ml:2,mt:0.5, color:"#D32F2F"}}>Obrigatório</Typography>}
               </FormControl>  
@@ -248,7 +260,7 @@ const FormEncomenda = () => {
                   variant="filled"
                   onChange={handleChange}
                 >
-                  {motoristas}
+                  {cl}
                 </Select>
                 {!!errors.customerId && !!touched.customerId && <Typography fontSize={10} sx={{ml:2,mt:0.5, color:"#D32F2F"}}>Obrigatório</Typography>}
               </FormControl>  
